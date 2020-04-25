@@ -175,6 +175,31 @@ def load_classrooms(filename):
 
 
 classrooms, capacities = load_classrooms(classroom)
-print(classrooms) #This was used to verify results
+#print(classrooms) #This was used to verify results
 
+
+"""
+Given all times when classes are scheduled, determine the set of unique timeslots
+"""
+def determine_unique_timeslots(classtimes):
+	timeslots = []
+
+	for time in classtimes:
+		if time not in timeslots:
+			timeslots.append(time)
+	
+	return timeslots
+
+"""
+Use information from excel files for ortools optimization
+"""
+#Get num courses, num class times, and num buildings for OR-tools
+num_courses = len(subjects)
+
+unique_times = determine_unique_timeslots(times)
+num_classtimes = len(unique_times)
+
+num_buildings = len(classrooms)
+
+print(num_courses, num_classtimes, num_buildings)
 
