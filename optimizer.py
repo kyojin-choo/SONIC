@@ -32,39 +32,40 @@ class NursesPartialSolutionPrinter(cp_model.CpSolverSolutionCallback):
     def solution_count(self):
         return self._solution_count
 
-def main():
+def optimizer(num_courses, num_timeslots, num_classrooms, subjects, course_nums, times,
+              course_titles, versions, sections, instructor_real_names, capacities, classrooms):
     # data
-    num_courses = 81
-    num_timeslots = 15
-    num_buildings = 12
+    #num_courses = 81
+    #num_timeslots = 15
+    #num_classrooms = 12
     all_courses = range(num_courses)
     all_timeslots = range(num_timeslots)
-    all_buildings = range(num_buildings)
+    all_classrooms = range(num_classrooms)
     model = cp_model.CpModel()
 
     # Creates shift variables
     # shifts[(c, b, t)]: courses 'c', buildings 'b', timeslot 't'
     shifts = {}
     for c in all_courses:
-        for b in all_buildings:
+        for b in all_classrooms:
             for t in all_timeslots:
                 shifts[(c, b, t)] = model.NewBoolVar("shift_c%ib%it%i" % (c, b, t))
 
 #########################adding constraints to the model#########################
-    for b in all_buildings:
+    for b in all_classrooms:
         for t in all_timeslots:
             model.Add(sum(shifts[(c, b, t)] for c in all_courses) == 1)
 
     for c in all_courses:
-        for b in all_buildings:
+        for b in all_classrooms:
             model.Add(sum(shifts[(c, b, t)] for t in all_timeslots) <= 1)
 
 
-    min_shifts_per_nurse = (num_timeslots * num_buildings) // num_courses
+    min_shifts_per_nurse = (num_timeslots * num_classrooms) // num_courses
     max_shifts_per_nurse = min_shifts_per_nurse + 1
     for c in all_courses:
         num_shifts_worked = sum(
-            shifts[(c, b, t)] for b in all_buildings for t in all_timeslots)
+            shifts[(c, b, t)] for b in all_classrooms for t in all_timeslots)
         model.Add(min_shifts_per_nurse <= num_shifts_worked)
         model.Add(num_shifts_worked <= max_shifts_per_nurse)
 ##################################################################################
@@ -74,7 +75,7 @@ def main():
 
     a_few_solutions = range(5)
     solution_printer = NursesPartialSolutionPrinter(shifts, num_courses,
-                                                    num_buildings, num_timeslots,
+                                                    num_classrooms, num_timeslots,
                                                     a_few_solutions)
     solver.parameters.max_time_in_seconds = 45.0
     solver.SearchForAllSolutions(model, solution_printer)
