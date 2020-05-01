@@ -1,22 +1,8 @@
 #Imports
 from openpyxl import load_workbook
 
-#Constants
-schedule = "Spring 2020 Schedule.xlsx" #Set this to the path of any excel spreadsheet
-classroom = "ClassRoom.xlsx"
-
-#These are for the partial excel sheet - specifically for the schedule excel sheet
-SUBJECT = 1
-COURSE_NUM = 2
-COURSE_TITLE = 3
-VERSIONS = 4
-SECTIONS = 5
-INSTRUCTOR_NAME = 6
-TIME = 7
-CAPACITY = 8
-
 """
-Option 1
+load excel spreadsheet partial
 
 input: (string filename, int column)
 output: a list containing all data entries for a given column
@@ -25,7 +11,7 @@ Description:
 Given the path for an excel spreadsheet and a column number,
 load all entries from that column and return them as a list.
 
-Note: This works with both spreadsheets but doesn't strictly define datatypes
+Note: This works with all spreadsheets but doesn't strictly define datatypes
 """
 def load_excel_spreadsheet_partial(filename, column):
 	data = []
@@ -50,12 +36,8 @@ def load_excel_spreadsheet_partial(filename, column):
 	
 	return data
 
-capacities = load_excel_spreadsheet_partial(schedule, CAPACITY)
-print(capacities) #This was used to verify results
-
-
 """
-Option 2
+load schedule hardcoded
 
 input: (string filename)
 output: eight lists containing all data entries for all eight columns
@@ -66,9 +48,9 @@ go through each row and add the elements from each column to a corresponding lis
 
 Note: This is the format of the columns from excel sheet
 ['Subject', 'Course #', 'Course Title', 'Ver.', 'Sec.', 'Instructor Real Name', 'Time', 'Capacity']
-
 """
-def load_schedule(filename):
+
+def load_schedule_hardcoded(filename):
 	#Either of these work, it's a matter of preference
 	subjects, course_nums, course_titles, versions, sections, instructor_real_names, times, capacities = [], [], [], [], [], [], [], []
 
@@ -129,23 +111,29 @@ def load_schedule(filename):
 			
 	return subjects, course_nums, course_titles, versions, sections, instructor_real_names, times, capacities
 
-subjects, course_nums, course_titles, versions, sections, instructor_real_names, times, capacities = load_schedule(schedule)
-
-print(subjects) #This was used to verify results
-
-
 
 """
-These functions are similar to the load schedule functions except that they are for the class room files
+load classrooms hardcoded
+
+input: (string filename)
+output: two lists containing all data entries for all two columns
+
+Description: 
+Given the path for an excel spreadsheet,
+go through each row and add the elements from each column to a corresponding list.
+
+Note: This is the format of the columns from excel sheet
+['Classroom', 'Capacity']
 """
-def load_classrooms(filename):
+
+def load_classrooms_hardcoded(filename):
 	#Either of these work, it's a matter of preference
 	classrooms, capacities = [], []
-	
 	"""
 	classroom = []
 	capacity = []
 	"""
+	
 	workbook = load_workbook(filename) 		#Load .xlsx file
 	sheet = workbook.active				#Current excel sheet (we are only using one)
 	rows = sheet.rows				#Rows from excel sheet
@@ -173,33 +161,4 @@ def load_classrooms(filename):
 	
 	return classrooms, capacities
 
-
-classrooms, capacities = load_classrooms(classroom)
-#print(classrooms) #This was used to verify results
-
-
-"""
-Given all times when classes are scheduled, determine the set of unique timeslots
-"""
-def determine_unique_timeslots(classtimes):
-	timeslots = []
-
-	for time in classtimes:
-		if time not in timeslots:
-			timeslots.append(time)
-	
-	return timeslots
-
-"""
-Use information from excel files for ortools optimization
-"""
-#Get num courses, num class times, and num buildings for OR-tools
-num_courses = len(subjects)
-
-unique_times = determine_unique_timeslots(times)
-num_classtimes = len(unique_times)
-
-num_buildings = len(classrooms)
-
-print(num_courses, num_classtimes, num_buildings)
 
