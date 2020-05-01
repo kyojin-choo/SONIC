@@ -35,8 +35,11 @@ def main():
     unique_times = determine_unique_timeslots(times)
     num_classtimes = len(unique_times)
     
-    num_buildings = len(classrooms)
+    num_classrooms = len(classrooms)
     
-    print(num_courses, num_classtimes, num_buildings)
+    print(num_courses, num_classtimes, num_classrooms)
+
+    optimizer.optimizer(num_courses, num_classtimes, num_classrooms, subjects, course_nums, times,
+                        course_titles, versions, sections, instructor_real_names, capacities, classrooms)
 
 main()
