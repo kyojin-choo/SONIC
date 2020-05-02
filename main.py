@@ -1,8 +1,6 @@
 #Imports
 import parse_excel
 import optimizer
-#import ortools python code file
-
 
 #Spreadsheet file names
 schedule_file = "Spring 2020 Schedule.xlsx"
@@ -36,8 +34,6 @@ def main():
     num_classtimes = len(unique_times)
     
     num_classrooms = len(classrooms)
-    
-    print(num_courses, num_classtimes, num_classrooms)
 
     optimizer.optimizer(num_courses, num_classtimes, num_classrooms, subjects, course_nums, times,
                         course_titles, versions, sections, instructor_real_names, capacities, classrooms)
