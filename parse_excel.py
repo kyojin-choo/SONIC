@@ -2,6 +2,19 @@
 from openpyxl import load_workbook
 
 """
+error file not found
+
+input: filename
+
+Description:
+Given a filename, prints an error message that the given file was not found
+Then exits the program
+"""
+def error_file_not_found(filename):
+    print("Error: The file", filename, "was not found")
+    exit()
+
+"""
 load excel spreadsheet partial
 
 input: (string filename, int column)
@@ -16,7 +29,11 @@ Note: This works with all spreadsheets but doesn't strictly define datatypes
 def load_excel_spreadsheet_partial(filename, column):
 	data = []
 
-	workbook = load_workbook(filename) 		#Load .xlsx file
+	try:
+		workbook = load_workbook(filename) 		#Load .xlsx file
+	except:
+	    error_file_not_found(filename)
+	
 	sheet = workbook.active				#Current excel sheet (we are only using one)
 	rows = sheet.rows				#Rows from excel sheet
 	max_row = sheet.max_row				#Gets count of max row
@@ -65,8 +82,11 @@ def load_schedule_hardcoded(filename):
 	capacities = []
 	"""
 	
-
-	workbook = load_workbook(filename) 		#Load .xlsx file
+	try:
+		workbook = load_workbook(filename) 		#Load .xlsx file
+	except:
+	    error_file_not_found(filename)
+	
 	sheet = workbook.active				#Current excel sheet (we are only using one)
 	rows = sheet.rows				#Rows from excel sheet
 	max_row = sheet.max_row				#Gets count of max row
@@ -126,7 +146,7 @@ Note: This is the format of the columns from excel sheet
 ['Classroom', 'Capacity']
 """
 
-def load_classrooms_hardcoded(filename):
+def load_classrooms_hardcoded(filename):       
 	#Either of these work, it's a matter of preference
 	classrooms, capacities = [], []
 	"""
@@ -134,7 +154,11 @@ def load_classrooms_hardcoded(filename):
 	capacity = []
 	"""
 	
-	workbook = load_workbook(filename) 		#Load .xlsx file
+	try:
+	    workbook = load_workbook(filename) 		#Load .xlsx file
+	except:
+		error_file_not_found(filename)
+	
 	sheet = workbook.active				#Current excel sheet (we are only using one)
 	rows = sheet.rows				#Rows from excel sheet
 	max_row = sheet.max_row				#Gets count of max row
