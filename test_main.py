@@ -1,6 +1,6 @@
 #Imports
 import parse_excel
-import test_optimizer
+#import test_optimizer
 from constraint import *
 
 #Spreadsheet file names
@@ -8,6 +8,9 @@ schedule_file = "Spring 2020 Schedule.xlsx"
 classroom_file = "ClassRoom.xlsx"
 classes = []
 rooms = []
+#ite 227, eng 122, sher 151, sher 013, sher 014, sond 109
+#meyer 6, math 106, bio 120, ilsb 233, ilsb 237, pub 105
+distances = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
 
 class Class:
     def __init__(self, subject, number, title, section, instructor, time, capacity):
@@ -41,20 +44,28 @@ def determine_unique_timeslots(classtimes):
 
 
 def capacity_constraint(classs, room):
-    if classes[classs].capacity  <= rooms[room].capacity:
+    if classs.capacity  <= room.capacity:
         return True
     return False
 
 def optimizer(num_courses, num_classrooms):
     problem = Problem()
-    problem.addVariable("c", range(num_courses))
-    problem.addVariable("r", range(num_classrooms))
+    problem.addVariable("c", classes)
+    problem.addVariable("r", rooms)
     problem.addConstraint(capacity_constraint, ['c', 'r'])
     solutions = problem.getSolutions()
+
+    #for i in range(len(solutions)):
+     #   print(solutions[i]["c"].title, " in ", solutions[i]["r"].room, solutions[i]["c"].capacity, solutions[i]["r"].capacity)
+
+    problem = Problem()
+    problem.addVariable("b", solutions)
+    solutions1 = problem.getSolutions()
+    print(solutions1)
     
-    for i in range(len(solutions)):
-        print(rooms[solutions[i]["r"]].room)
-    print(len(solutions))
+    #for i in range(len(solutions)):
+     #   print(i, rooms[solutions[i]["r"]].room)
+    #print(len(solutions))
 
 
 def main():
