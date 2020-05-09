@@ -9,7 +9,7 @@ classroom_file = "ClassRoom.xlsx"
 classes = []
 rooms = []
 #ite 227, eng 122, sher 151, sher 013, sher 014, sond 109
-#meyer 6, math 106, bio 120, ilsb 233, ilsb 237, pub 105
+#meyer, math 106, bio 120, ilsb 233, ilsb 237, pub 105
 distances = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
 
 class Class:
