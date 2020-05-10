@@ -1,98 +1,196 @@
-#file for OR-Tools
-
-from __future__ import print_function
+#Imports
+import parse_excel
 from ortools.sat.python import cp_model
+from constraint import *
 
-class NursesPartialSolutionPrinter(cp_model.CpSolverSolutionCallback):
-    def __init__(self, classes, num_courses, num_classrooms, num_timeslots, sols):
-        cp_model.CpSolverSolutionCallback.__init__(self)
-        self._classes = classes
-        self._num_courses = num_courses
-        self._num_classrooms = num_classrooms
-        self._num_timeslots = num_timeslots
-        self._solutions = set(sols)
-        self._solution_count = 0
+#Spreadsheet file names
+schedule_file = "Spring 2020 Schedule.xlsx"
+classroom_file = "ClassRoom.xlsx"
+classes = []
+rooms = []
+list_of_times = []
+buildings = {}
+#ite 227, eng 122, sher 151, sher 013, sher 014, sond 109
+#meyer, math 106, bio 120, ilsb 233, ilsb 237, pub 105
+distances = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
 
-    def on_solution_callback(self):
-        if self._solution_count in self._solutions:
-            print("Solution %i" % self._solution_count)
-            for b in range(self._num_classrooms):
-                print("Day %i" % b)
-                for c in range(self._num_courses):
-                    is_working = False
-                    for t in range(self._num_timeslots):
-                        if self.Value(self._classes[(c, b, t)]):
-                            is_working = True
-                            print(" Course %i works timeslots %i" % (c, t))
-                    if not is_working:
-                        print(" Course {} does not work" .format(c))
-            print()
-        self._solution_count += 1
+class Class:
+    def __init__(self, subject, number, title, section, instructor, time, capacity, version):
+        self.subject = subject
+        self.number = number
+        self.title = title
+        self.section = section
+        self.instructor = instructor
+        self.time = time
+        self.capacity = capacity
+        self.version = str(version).lower()
+        if version == None:
+            self.version = ""
+        self.course_info = (subject + " " + number + " " + title + self.version + " " + str(section) + " " + instructor)
 
-    def solution_count(self):
-        return self._solution_count
+class Classroom:
+    def __init__(self, room, capacity):
+        self.room = room
+        self.capacity = capacity
+        self.classes_in_classroom = []
 
-def optimizer(num_courses, num_timeslots, num_classrooms, subjects, course_nums, times,
-              course_titles, versions, sections, instructor_real_names, capacities, classrooms,
-              classroom_capacities):
-    # data
-    #num_courses = 81
-    #num_timeslots = 15
-    #num_classrooms = 12
-    all_courses = range(num_courses)
-    all_timeslots = range(num_timeslots)
-    all_classrooms = range(num_classrooms)
-    model = cp_model.CpModel()
+class Time:
+    def __init__(self, time):
+        self.classes_at_time = []
+        self.actual_time = time
 
-    # Creates shift variables
-    # shifts[(c, b, t)]: courses 'c', buildings 'b', timeslot 't'
-    classes = {}
-    for b in all_classrooms:
-        for c in all_courses:
-            classes[(course_titles[c], capacities[c], times[c], classrooms[b])] = model.NewBoolVar("Class_%s, %i, %s, %s" % (course_titles[c], capacities[c], times[c], classrooms[b]))
-#            print(classes)
-            
-    #adding constraints to the model
-    for b in all_classrooms:
-        for c in all_courses:
-            model.Add(capacities[c] <= classroom_capacities[b])
-#    for b in all_classrooms:
- #       for t in all_timeslots:
-  #          model.Add(sum(shifts[(c, b, t)] for c in all_courses) == 1)
+def determine_unique_timeslots(classtimes):
+    timeslots = []
+    
+    for time in classtimes:
+        #.lower fixes MW230 mw230 from being different
+        if time.lower() not in timeslots:
+            timeslots.append(time)
+    
+    return timeslots
 
-#    for c in all_courses:
- #       for b in all_classrooms:
-  #          model.Add(sum(shifts[(c, b, t)] for t in all_timeslots) <= 1)
+"""
+optimizer
 
-#    for c in all_courses:
- #       for b in all_classrooms:
-  #          print("Class: ", capacities[c])
-   #         print("ClassRoom: ", classroom_capacities[b])
-    #        model.Add(capacities[c] <= classroom_capacities[b])
+input: l, t
+l: list of classes
+t: time solutions
 
+Description:
+A series of single solution opimizations
 
-   # min_shifts_per_nurse = (num_timeslots * num_classrooms) // num_courses
-   # max_shifts_per_nurse = min_shifts_per_nurse + 1
-   # for c in all_courses:
-    #    num_shifts_worked = sum(
-     #       shifts[(c, b, t)] for b in all_classrooms for t in all_timeslots)
-     #   model.Add(min_shifts_per_nurse <= num_shifts_worked)
-      #  model.Add(num_shifts_worked <= max_shifts_per_nurse)
-##################################################################################
+Note: doing all optimizations at once caused slow runtime and may lead to memory errors
+"""
+def optimizer(l, t):
+    problem = Problem()
+    problem.addVariable(t, l)
+    return problem.getSolutions()
 
-    solver = cp_model.CpSolver()
-    solver.parameters.linearization_level = 0
+def main():
 
-    a_few_solutions = range(5)
-    solution_printer = NursesPartialSolutionPrinter(classes, num_courses,
-                                                    num_classrooms, num_timeslots,
-                                                    a_few_solutions)
-    solver.parameters.max_time_in_seconds = 45.0
-    solver.SearchForAllSolutions(model, solution_printer)
+    #Get lists from schedule excel sheet
+    subjects, course_nums, course_titles, versions, sections, instructor_real_names, times, capacities = parse_excel.load_schedule_hardcoded(schedule_file)
+    #Get lists from classroom excel sheets
+    classrooms, classroom_capacities = parse_excel.load_classrooms_hardcoded(classroom_file)
+    
+    #Use information from excel files for ortools optimization
+    num_courses = len(subjects)
+    
+    unique_times = determine_unique_timeslots(times)
+    
+    num_classrooms = len(classrooms)
 
-    print()
-    print('Statistics')
-    print('  - conflicts : %i' % solver.NumConflicts())
-    print('  - branches : %i' % solver.NumBranches())
-    print('  - wall time : %f s' % solver.WallTime())
-    print('  - solutions found : %i' % solution_printer.solution_count())
+    num_classtimes = len(unique_times)
+
+    for i in range(num_courses):
+        _class = Class(subjects[i], course_nums[i], course_titles[i], sections[i], instructor_real_names[i], times[i], capacities[i], versions[i])
+        classes.append(_class)
+
+    for i in range(num_classrooms):
+        room = Classroom(classrooms[i], classroom_capacities[i])
+        rooms.append(room)
+
+    for t in unique_times:
+        time_instance = Time(t)
+        list_of_times.append(time_instance)
+
+    for r in range(num_classrooms):
+        for c in range(num_courses):
+            if rooms[r].capacity >= classes[c].capacity:
+                rooms[r].classes_in_classroom.append(classes[c])
+
+    for t in range(num_classtimes):
+        for c in range(num_courses):
+            if list_of_times[t].actual_time == classes[c].time:
+                list_of_times[t].classes_at_time.append(classes[c])
+
+    time_solutions = []
+    for t in list_of_times:
+        l = []
+        for c in t.classes_at_time:
+            l.append(c.course_info)
+        for i in range(len(l)):
+            solution = optimizer([l[i]], t.actual_time)
+            time_solutions.append(solution)
+
+    room_solutions = []
+    for r in rooms:
+        rt = []
+        for c in r.classes_in_classroom:
+            rt.append(c.course_info)
+        for j in range(len(rt)):
+            solution = optimizer([rt[j]], r.room)
+            room_solutions.append(solution)
+    dicts = []
+    for i in range(len(time_solutions)):
+        for j in range(len(time_solutions[i])):
+            dicts.append(time_solutions[i][j])
+
+    for i in range(len(room_solutions)):
+        for j in range(len(room_solutions[i])):
+            dicts.append(room_solutions[i][j])
+
+    lists = {}
+    for d in dicts:
+        (k, v), = d.items()
+        if v in lists:
+            temp = lists[v]
+            temp.append(k)
+            lists[v] = temp
+        else:
+
+            new_entry = [k]
+            lists[v] = new_entry
+
+    """
+    TODO
+    create schedule of classes,  
+    """
+    schedule = {}
+    count = 0
+    for k,v in lists.items():
+        if(count == len(lists)-1):
+            v.insert(0, "mw230")
+        count += 1
+        time = v[0]
+        course_info = k
+        possible_rooms = v[1:]
+        building = v[-1]
+        if time in schedule:
+            temp = schedule[time]
+            if building in temp:
+                conflict = True
+                for b in reversed(v[1:]):
+                    if b not in temp:
+                        conflict = False
+                        temp.append(b)
+                        temp.append(course_info)
+                        schedule[time] = temp
+                        break
+                if conflict == True:
+                    print("Error: The class", course_info, "could not be scheduled at the timeslot", time)
+                    exit()
+            else:
+                temp.append(building)
+                temp.append(course_info)
+                schedule[time] = temp
+        else:
+            schedule[time] = [building, course_info]
+    #print(schedule)
+    #'''
+
+    print("Schedule by Sonic Scheduler:\n")
+    for k, v in schedule.items():
+        print("**********************************************")
+        print("Classes at time: ", k)
+        print("**********************************************")
+        for i in range(len(v)):
+            if i % 2 == 0:
+                print("\nBuilding: ", v[i])
+            else:
+                print("Class: ", v[i])
+        print("\n")
+    #'''    
+    
+
+main()
