@@ -171,7 +171,9 @@ def main():
             if list_of_times[t].actual_time == classes[c].time:
                 list_of_times[t].classes_at_time.append(classes[c])
 
-
+	"""
+	Generates time constraints using python constraint
+	"""
     time_solutions = []
     for t in list_of_times:
         l = []
@@ -181,6 +183,9 @@ def main():
             solution = optimizer([l[s]], t.actual_time)
             time_solutions.append(solution)
 
+	"""
+	Generates room constraints using python constraint
+	"""
     room_solutions = []
     for r in rooms:
         rt = []
@@ -190,6 +195,9 @@ def main():
             solution = optimizer([rt[j]], r.room)
             room_solutions.append(solution)
 
+	"""
+	Rearrange data structure recieved from python constraint to retrieve schedule
+	"""
     dicts = []
     for i in range(len(time_solutions)):
         for j in range(len(time_solutions[i])):
@@ -212,6 +220,9 @@ def main():
             lists[v] = new_entry
 
 
+	"""
+	Format schedule from constraints
+	"""
     schedule = {}
     count = 0
     not_scheduled = []
