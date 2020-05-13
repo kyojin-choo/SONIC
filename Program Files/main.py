@@ -85,6 +85,28 @@ def print_schedule(schedule):
         print("\n")
 
 """
+print conflicts
+
+input: list containing error messages for each class that could not
+be scheduled
+output: prints organized list showing the class info, time the class
+was to be scheduled and where the scheduler tried to place it
+
+Description: 
+Given a list of error messages for each class not scheduled loops
+over and prints an informative list
+"""
+def print_conflicts(not_scheduled):
+    if not not_scheduled:
+        print("All classes were successfully scheduled")
+    else:
+        print("----------------------------------------------\n")
+        print("NOTICE: The following class(es) could not be scheduled\n")
+        for s in not_scheduled:
+            print(s)
+            print("----------------------------------------------\n")
+
+"""
 optimizer
 
 input: (l, t)
@@ -191,6 +213,7 @@ def main():
 
     schedule = {}
     count = 0
+    not_scheduled = []
     for k,v in lists.items():
         if(count == len(lists)-1):
             v.insert(0, "mw230")
@@ -216,8 +239,8 @@ def main():
                 are full
                 """
                 if conflict == True:
-                    print("Error: The class", course_info, "could not be scheduled at the timeslot", time)
-                    exit()
+                    error_msg = "Timeslot: " + time + ". Attempted to schedule in " + building + "\n" + course_info
+                    not_scheduled.append(error_msg)
             else:
                 temp.append(building)
                 temp.append(course_info)
@@ -225,7 +248,9 @@ def main():
         else:
             schedule[time] = [building, course_info]
 
+
     print_schedule(schedule)
+    print_conflicts(not_scheduled)
     
 
 main()
