@@ -98,6 +98,7 @@ over and prints an informative list
 """
 def print_conflicts(not_scheduled):
     if not not_scheduled:
+        print("**********************************************")
         print("All classes were successfully scheduled")
     else:
         print("----------------------------------------------\n")
