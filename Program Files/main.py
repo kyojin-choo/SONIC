@@ -257,7 +257,7 @@ def main():
                 are full
                 """
                 if conflict == True:
-                    error_msg = "Timeslot: " + time + ". Attempted to schedule in " + building + "\n" + course_info
+                    error_msg = "All possible classrooms filled at timeslot: " + time + "\n" + course_info
                     not_scheduled.append(error_msg)
             else:
                 temp.append(building)
