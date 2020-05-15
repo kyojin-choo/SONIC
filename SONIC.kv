@@ -1,0 +1,181 @@
+#:kivy 1.10.1
+#:import SlideTransition kivy.uix.screenmanager.SwapTransition
+#:import FadeTransition kivy.uix.screenmanager.FadeTransition
+
+ScreenManagement:
+    transition: SlideTransition()
+    WelcomeScreen:
+    MenuScreen:
+    ClassroomParser:
+        id: ClassScreen
+    CatalogParser:
+        id: CatalogScreen
+    OptScreen:
+        id: OptimizeScreen
+
+<WelcomeScreen>:
+    name: "Welcome"
+
+    FloatLayout:
+        canvas.before:
+            Color:
+                rgba: 0.525, 0.576, 0.671, 1
+            Rectangle:
+                # self here refers to the widget i.e BoxLayout
+                pos: self.pos
+                size: self.size
+
+        Label:
+            text: "Welcome to SONIC"
+            bold: True
+            font_size: 56
+            size_hint: 0.2, 0.2
+            pos: 625, 575
+
+        Button:
+            on_release: 
+                app.root.transition = FadeTransition(duration=0.15)
+                app.root.current = "Menu"
+            text: "Please click to begin."
+            background_color: 0, 0, 0, 0
+            color: 0.74117647058, 0.83137254902, 0.90588235294, 1
+            font_size: 28
+
+<MenuScreen>:
+    name: "Menu"
+
+    FloatLayout:
+        canvas.before:
+            Color:
+                rgba: 0.525, 0.576, 0.671, 1
+            Rectangle:
+                # self here refers to the widget i.e BoxLayout
+                pos: self.pos
+                size: self.size
+
+        Label:
+            text: "S O N I C"
+            bold: True
+            font_size: 56
+            size_hint: 0.2, 0.2
+            pos: 600, 600
+
+        Button:
+            on_release: 
+                app.root.transition = SlideTransition()
+                app.root.current = "CatalogParser"
+            text: "Parse .xlsx (Catalog)"
+            background_color: 0.60, 0.7725490196, 0.70980392156, 1
+            color: 0.74117647058, 0.83137254902, 0.90588235294, 1
+            font_size: 28
+            size_hint: None, None
+            size: 350, 150
+            pos: 350, 400
+
+        Button:
+            on_release: 
+                app.root.transition = SlideTransition()
+                app.root.current = "ClassroomParser"
+            text: "Parse .xlsx (Classroom)"
+            background_color: 0.60, 0.7725490196, 0.70980392156, 1
+            color: 0.74117647058, 0.83137254902, 0.90588235294, 1
+            font_size: 28
+            size_hint: None, None
+            size: 350, 150
+            pos: 850, 400
+
+        Button:
+            on_release: 
+                app.root.transition = SlideTransition()
+                app.root.current = "Optimize"
+            text: "Optimize Schedule"
+            background_color: 0.6, 0.7725490196, 0.70980392156, 1
+            color: 0.74117647058, 0.83137254902, 0.90588235294, 1
+            font_size: 28
+            size_hint: None, None
+            size: 350, 150
+            pos: 350, 150
+
+        Button:
+            on_release: app.get_running_app().stop()
+            text: "Exit Program"
+            background_color: 0.6, 0.7725490196, 0.70980392156, 1
+            color: 0.74117647058, 0.83137254902, 0.90588235294, 1
+            font_size: 28
+            size_hint: None, None
+            size: 350, 150
+            pos: 850, 150
+
+<ClassroomParser>:
+    name: "ClassroomParser"
+    FloatLayout:
+        canvas.before:
+            Color:
+                rgba: 0.525, 0.576, 0.671, 1
+            Rectangle:
+                # self here refers to the widget i.e BoxLayout
+                pos: self.pos
+                size: self.size
+    Button:
+        on_release: app.root.current = "Menu"
+        text: "Cancel"
+        background_color: 1, 0.41176470588, 0.38039215686, 0.85
+        color: 0.74117647058, 0.83137254902, 0.90588235294, 1
+        font_size: 28
+        size_hint: 0.1, 0.075
+        pos: 1250, 150
+
+
+<CatalogParser>:
+    name: "CatalogParser"
+    FloatLayout:
+        canvas.before:
+            Color:
+                rgba: 0.525, 0.576, 0.671, 1
+            Rectangle:
+                # self here refers to the widget i.e BoxLayout
+                pos: self.pos
+                size: self.size
+
+    Button:
+        on_release: app.root.current = "Menu"
+        text: "Cancel"
+        background_color: 1, 0.41176470588, 0.38039215686, 0.85
+        color: 0.74117647058, 0.83137254902, 0.90588235294, 1
+        font_size: 28
+        size_hint: 0.1, 0.075
+        pos: 1250, 150
+
+
+<OptScreen>:
+    name: "Optimize"
+
+    FloatLayout:
+        canvas.before:
+            Color:
+                rgba: 0.525, 0.576, 0.671, 1
+            Rectangle:
+                # self here refers to the widget i.e BoxLayout
+                pos: self.pos
+                size: self.size
+        ScrollView:
+            do_scroll_x: False
+            do_scroll_y: True
+
+    Button:
+        on_release: app.root.current = "Menu"
+        text: "Return to Menu"
+        background_color: 1, 0.41176470588, 0.38039215686, 0.85
+        color: 0.74117647058, 0.83137254902, 0.90588235294, 1
+        font_size: 28
+        size_hint: 0.15, 0.075
+        pos: 1250, 150
+
+# Define the scroll view 
+<ScrollableLabel>:
+    Label:
+        size_hint_y: None
+        height: self.texture_size[1]
+        text_size: self.width, None
+        text: root.text
+
